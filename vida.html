@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Juego de la vida</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        td {
+            border: 0.5px solid #394839;
+            padding: 8px;
+            text-align: center;
+        }
+
+        tr {
+            background-color: #2c2b2b;
+        }
+
+        .alive {
+            background-color: rgb(67, 240, 67);
+        }
+
+        .dead {
+            background-color: black;
+        }
+        .invisible{
+            visibility: hidden;
+        }
+    </style>
+    <script>
+        var rows
+        var cols
+        var id
+        var table
+        var neighborCell
+
+        function generarTablero() {
+            for (var i = 0; i < rows; i++) {
+                var row = document.createElement('tr')
+                table.appendChild(row)
+                for (var j = 0; j < cols; j++) {
+                    id++
+                    var cell = document.createElement('td')
+                    cell.id = id.toString()
+                    cell.classList.add('dead')
+                    row.appendChild(cell)
+                }
+            }
+
+            document.getElementById('form').classList.add('invisible')
+        }
+
+function colocarVivas() {
+    var patron = [
+        [0, 1, 0],
+        [0, 0, 1],
+        [1, 1, 1]
+    ];
+
+    var startRow = Math.floor(rows / 2) - Math.floor(patron.length / 2) 
+    var startCol = Math.floor(cols / 2) - Math.floor(patron[0].length / 2)
+
+    for (var i = 0; i < patron.length; i++) {
+        for (var j = 0; j < patron[i].length; j++) {
+            if (patron[i][j] === 1) {
+                var row = startRow + i
+                var col = startCol + j
+                var cell = document.getElementById((row * cols + col + 1).toString())
+
+                if (cell != null) {
+                    cell.classList.remove('dead')
+                    cell.classList.add('alive')
+                   
+                }
+            }
+        }
+    }
+        }
+
+        function contarVivas(row, col) {
+            var vivas = 0
+            var muertas = 0
+
+            for (var i = row - 1; i <= row + 1; i++) {
+                for (var j = col - 1; j <= col + 1; j++) {
+                    if (i >= 0 && i < rows && j >= 0 && j < cols && !(i === row && j === col)) {
+                        var neighborRow = table.rows[i]
+                        if (neighborRow) {
+                            neighborCell = neighborRow.cells[j]
+                            if (neighborCell.classList.contains('alive')) {
+                                vivas++
+                            } else if (neighborCell.classList.contains('dead')) {
+                                muertas++
+                            }
+                        }
+                    }
+                }
+            }
+
+            var currentCell = table.rows[row].cells[col]
+            if (currentCell.classList.contains('alive')) {
+                if (vivas === 2 || vivas === 3) {
+                    
+                } else {
+                    setTimeout(function() {
+                    currentCell.classList.remove('alive')
+                    currentCell.classList.add('dead')
+                    }, 1000);
+
+                }
+            } else {
+                if (vivas >= 3) {
+                    setTimeout(function() {
+                    currentCell.classList.remove('dead')
+                    currentCell.classList.add('alive')
+                    }, 1000)
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            id = 0
+            table = document.createElement('table')
+            document.body.appendChild(table)
+
+            document.getElementById('form').addEventListener('submit', function (event) {
+                event.preventDefault()
+                var input = document.getElementById('rows-cols-input')
+                rows = parseInt(input.value)
+                cols = parseInt(input.value)
+
+                generarTablero()
+                colocarVivas()
+                setInterval(iniciarJuego, 500)
+            })
+        })
+
+        function iniciarJuego() {
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < cols; j++) {
+                    contarVivas(i, j)
+                }
+            }
+            var vivas = document.getElementsByClassName('alive').length
+            var muertas = document.getElementsByClassName('dead').length
+            console.log("Vivas: " + vivas + " muertas: " + muertas)
+        }
+    </script>
+    
+</head>
+
+<body>
+    <form id="form">
+        <label for="rows-cols-input">Elige el número de filas y columnas(recomendado más de 20):</label>
+        <input type="number" id="rows-cols-input" required>
+        <button type="submit">Empezar juego</button>
+    </form>
+</body>
+</html>
